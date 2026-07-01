@@ -36,7 +36,8 @@ const char kOptions[] =
     "--dump-resources-modifiable-state-only,--pbi-all,--preload-measurement-range,--add-new-pipeline-caches,--"
     "screenshot-ignore-FrameBoundaryANDROID,--screenshot-apply-prerotation,--deduplicate-device,--log-timestamps,--"
     "capture,--idle-before-submit,--"
-    "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes";
+    "serialize-render-passes,--serialize-queue-submissions,--async-processing,--isolate-render-passes,--serialize-"
+    "compute-and-transfer";
 const char kArguments[] =
     "--log-level,--log-file,--cpu-mask,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--screenshot-interval,--denied-messages,--allowed-messages,--screenshot-format,--"
