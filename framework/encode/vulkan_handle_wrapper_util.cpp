@@ -218,6 +218,56 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type)
     }
 }
 
+uint32_t GetSafeDataExtractionQueueFamilyIndex(const DeviceWrapper*    device_wrapper,
+                                               const AssetWrapperBase* resource_wrapper)
+{
+    // Implicitly trust the explicitly assigned resource_index because the application explicitly requested it.
+    uint32_t resource_index = resource_wrapper ? resource_wrapper->queue_family_index : VK_QUEUE_FAMILY_IGNORED;
+    if (resource_index != VK_QUEUE_FAMILY_IGNORED && resource_index != VK_QUEUE_FAMILY_EXTERNAL &&
+        resource_index != VK_QUEUE_FAMILY_FOREIGN_EXT)
+    {
+        return resource_index;
+    }
+
+    if (device_wrapper == nullptr || device_wrapper->physical_device == nullptr ||
+        device_wrapper->queue_family_indices.empty())
+        return 0; // Extremely unlikely / uninitialized fallback
+
+    if (device_wrapper->fallback_data_queue_family_index != VK_QUEUE_FAMILY_IGNORED)
+        return device_wrapper->fallback_data_queue_family_index;
+
+    uint32_t fallback_index = device_wrapper->queue_family_indices.front();
+
+    const graphics::VulkanInstanceTable* instance_table  = device_wrapper->physical_device->layer_table_ref;
+    VkPhysicalDevice                     physical_device = device_wrapper->physical_device->handle;
+
+    if (instance_table != nullptr && physical_device != VK_NULL_HANDLE)
+    {
+        uint32_t queue_family_count = 0;
+        instance_table->GetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, nullptr);
+
+        if (queue_family_count > 0)
+        {
+            std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
+            instance_table->GetPhysicalDeviceQueueFamilyProperties(
+                physical_device, &queue_family_count, queue_family_properties.data());
+
+            for (uint32_t qfi : device_wrapper->queue_family_indices)
+            {
+                if (qfi < queue_family_properties.size() &&
+                    (queue_family_properties[qfi].queueFlags &
+                     (VK_QUEUE_TRANSFER_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT)) != 0)
+                {
+                    fallback_index = qfi;
+                    break;
+                }
+            }
+        }
+    }
+
+    const_cast<DeviceWrapper*>(device_wrapper)->fallback_data_queue_family_index = fallback_index;
+    return fallback_index;
+}
+GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
-GFXRECON_END_NAMESPACE(gfxrecon)

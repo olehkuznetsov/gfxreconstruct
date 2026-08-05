@@ -176,6 +176,7 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
     // Physical device property & feature state at device creation
     graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
     std::vector<uint32_t>                     queue_family_indices;
+    uint32_t                                  fallback_data_queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
 };
 
 struct FenceWrapper : public HandleWrapper<VkFence>
@@ -203,7 +204,7 @@ struct AssetWrapperBase
 
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
-    uint32_t         queue_family_index{ 0 };
+    uint32_t         queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
 
     VkDeviceSize                              size{ 0 };
     bool                                      dirty{ true };
@@ -523,7 +524,7 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
     std::unordered_map<format::HandleId, CommandBufferWrapper*> child_buffers;
 
     // Members for trimming state tracking.
-    uint32_t queue_family_index{ 0 };
+    uint32_t queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
 
     DeviceWrapper* device{ nullptr };
     bool           trim_command_pool{ false };
@@ -603,7 +604,7 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
     // Members for trimming state tracking.
     DeviceWrapper*                                    device{ nullptr };
     SurfaceKHRWrapper*                                surface{ nullptr };
-    uint32_t                                          queue_family_index{ 0 };
+    uint32_t                                          queue_family_index{ VK_QUEUE_FAMILY_IGNORED };
     VkFormat                                          format{ VK_FORMAT_UNDEFINED };
     VkExtent3D                                        extent{ 0, 0, 0 };
     VkSurfaceTransformFlagBitsKHR                     pre_transform{ VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR };

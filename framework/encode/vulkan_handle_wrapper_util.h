@@ -696,6 +696,28 @@ inline void ResetDescriptorPoolWrapper(VkDescriptorPool handle)
     wrapper->child_sets.clear();
 }
 
+
+/**
+ * @brief Selects a safe and capable queue family index for resource data extraction (e.g. mapping/transferring).
+ *
+ * When an application creates a resource using VK_SHARING_MODE_EXCLUSIVE, the Vulkan specification dictates
+ * that queueFamilyIndexCount must be 0, thus omitting explicit queue family indices. GFXReconstruct
+ * captures this by leaving the resource wrapper's internal index as VK_QUEUE_FAMILY_IGNORED.
+ *
+ * If we blindly use VK_QUEUE_FAMILY_IGNORED to retrieve a queue during data extraction, drivers executing
+ * without strict boundary/validation checks (such as ARM Mali) will crash.
+ *
+ * This helper relies on two principles:
+ * 1. If the resource specifies a valid, explicit queue index, we trust the application unconditionally.
+ * 2. If the resource relies on VK_QUEUE_FAMILY_IGNORED, this helper inspects the physical device to dynamically
+ *    find the best fallback queue family that supports data transfer/extraction.
+ *
+ * @param device_wrapper The active Vulkan device wrapper containing instantiated queue properties.
+ * @param resource_wrapper The resource wrapper (Buffer, Image) being extracted (may be null).
+ * @return A queue family index safe for calling vkGetDeviceQueue.
+ */
+uint32_t GetSafeDataExtractionQueueFamilyIndex(const DeviceWrapper*    device_wrapper,
+                                               const AssetWrapperBase* resource_wrapper);
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -2316,7 +2316,7 @@ void VulkanCaptureManager::ProcessImportFdForImage(VkDevice device, VkImage imag
         image_resource.tiling             = image_wrapper->tiling;
         image_resource.sample_count       = image_wrapper->samples;
         image_resource.layout             = image_wrapper->current_layout;
-        image_resource.queue_family_index = image_wrapper->queue_family_index;
+        image_resource.queue_family_index = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(device_wrapper, image_wrapper);
         image_resource.external_format    = image_wrapper->external_format;
         image_resource.size               = image_wrapper->size;
         image_resource.aspect             = aspect;

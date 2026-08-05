@@ -497,7 +497,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
                     buffer.handle             = target_buffer_wrapper->handle;
                     buffer.handle_id          = target_buffer_wrapper->handle_id;
                     buffer.bind_device        = target_buffer_wrapper->bind_device;
-                    buffer.queue_family_index = target_buffer_wrapper->queue_family_index;
+                    buffer.queue_family_index = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(target_buffer_wrapper->bind_device, target_buffer_wrapper);
                     buffer.created_size       = target_buffer_wrapper->size;
                     buffer.usage              = target_buffer_wrapper->usage;
                 }
@@ -2121,7 +2121,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DeviceMemoryWrapper* wrap
                         buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                             buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                         resource_util->second.ReadFromBufferResource(
-                            buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                            buffer.handle, buffer.created_size, 0, vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(buffer.bind_device, buffer_wrapper), buffer.bytes);
                     }
                 }
             });
@@ -2174,7 +2174,7 @@ void gfxrecon::encode::VulkanStateTracker::DestroyState(vulkan_wrappers::BufferW
                 buffer.bind_device->layer_table.GetBufferMemoryRequirements(
                     buffer.bind_device->handle, buffer.handle, &buffer.memory_requirements);
                 resource_util->second.ReadFromBufferResource(
-                    buffer.handle, buffer.created_size, 0, buffer.queue_family_index, buffer.bytes);
+                    buffer.handle, buffer.created_size, 0, vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(buffer.bind_device, buffer_wrapper), buffer.bytes);
             }
         }
         if (acc_wrapper->buffer == buffer_wrapper)

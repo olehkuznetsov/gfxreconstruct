@@ -2312,7 +2312,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         buffer_resource.buffer             = buffer_wrapper->handle;
         buffer_resource.size               = buffer_wrapper->size;
         buffer_resource.offset             = 0;
-        buffer_resource.queue_family_index = buffer_wrapper->queue_family_index;
+        buffer_resource.queue_family_index = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(device_wrapper, buffer_wrapper);
 
         if (snapshot_entry.need_staging_copy)
         {
@@ -2439,7 +2439,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
             buffer_resource.buffer             = buffer_wrapper->handle;
             buffer_resource.size               = buffer_wrapper->size;
             buffer_resource.offset             = 0;
-            buffer_resource.queue_family_index = buffer_wrapper->queue_family_index;
+            buffer_resource.queue_family_index = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(device_wrapper, buffer_wrapper);
 
             if (snapshot_entry.need_staging_copy)
             {
@@ -2570,7 +2570,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         image_resource.tiling             = image_wrapper->tiling;
         image_resource.sample_count       = image_wrapper->samples;
         image_resource.layout             = image_wrapper->current_layout;
-        image_resource.queue_family_index = image_wrapper->queue_family_index;
+        image_resource.queue_family_index = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(device_wrapper, image_wrapper);
         image_resource.external_format    = image_wrapper->external_format;
         image_resource.size               = image_wrapper->size;
         image_resource.resource_size      = snapshot_entry.resource_size;
@@ -2750,7 +2750,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             image_resource.tiling                                       = image_wrapper->tiling;
             image_resource.sample_count                                 = image_wrapper->samples;
             image_resource.layout                                       = image_wrapper->current_layout;
-            image_resource.queue_family_index                           = image_wrapper->queue_family_index;
+            image_resource.queue_family_index                           = vulkan_wrappers::GetSafeDataExtractionQueueFamilyIndex(device_wrapper, image_wrapper);
             image_resource.size                                         = image_wrapper->size;
             image_resource.resource_size                                = snapshot_entry.resource_size;
             image_resource.level_sizes                                  = &snapshot_entry.level_sizes;
