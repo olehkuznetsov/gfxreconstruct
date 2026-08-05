@@ -51,11 +51,25 @@ VulkanFrameWarmUp::VulkanFrameWarmUp(const VulkanDeviceInfo*              device
     device_ = device_info->handle;
     GFXRECON_ASSERT(device_ != VK_NULL_HANDLE);
 
-    device_table->GetDeviceQueue(device_, 0, 0, &queue_);
+    uint32_t queue_family_index = graphics::FindComputeQueueFamilyIndex(device_info->enabled_queue_family_flags);
+    if (queue_family_index == VK_QUEUE_FAMILY_IGNORED) {
+        // Fallback to ANY enabled queue family if compute isn't explicitly found
+        for (uint32_t i = 0; i < device_info->enabled_queue_family_flags.queue_family_index_enabled.size(); ++i) {
+            if (device_info->enabled_queue_family_flags.queue_family_index_enabled[i]) {
+                queue_family_index = i;
+                break;
+            }
+        }
+    }
+    
+    if (queue_family_index == VK_QUEUE_FAMILY_IGNORED) {
+        queue_family_index = 0;
+    }
+    device_table->GetDeviceQueue(device_, queue_family_index, 0, &queue_);
     GFXRECON_ASSERT(queue_ != VK_NULL_HANDLE);
 
     VkCommandPoolCreateInfo cmd_pool_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
-    cmd_pool_info.queueFamilyIndex        = 0;
+    cmd_pool_info.queueFamilyIndex        = queue_family_index;
     cmd_pool_info.flags                   = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
     VkResult result = device_table->CreateCommandPool(device_, &cmd_pool_info, nullptr, &command_pool_);
 
